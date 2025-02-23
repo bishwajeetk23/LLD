@@ -7,8 +7,9 @@ class AI_Engine{
         Board board = start("TicTacToe");
         int row,col;
         Scanner sc = new Scanner(System.in);
-        while(isCompleted(board).isOver()){
+        while(!isCompleted(board).isOver()){
             System.out.println("Make your move");
+            System.out.println(board);
             Player computer = new Player("O");
             Player opponent = new Player("X");
             row = sc.nextInt();
@@ -16,7 +17,7 @@ class AI_Engine{
             // me makes move
             Move oppMove = new Move(new Cell(row, col));
             move(board, opponent, oppMove);
-
+            System.out.println(board);
             // computer makes move
             if(!isCompleted(board).isOver()){
                 Move computerMove = suggestMove(computer,board);
@@ -24,6 +25,7 @@ class AI_Engine{
             }
         }
         System.out.println("GameResult:  "+ isCompleted(board));
+        System.out.println(board);
         sc.close();
     }
     public static Move suggestMove(Player computer, Board board){
@@ -31,7 +33,7 @@ class AI_Engine{
             TicTacToeBoard board1 = (TicTacToeBoard) board;
             for (int i=0;i<3;i++){
                 for (int j=0;j<3;j++){
-                    if(board1.getCell(i, j).equals(null)){
+                    if(board1.getCell(i, j)==null){
                         return new Move(new Cell(i, j));
                     }
                 }
@@ -67,11 +69,13 @@ class AI_Engine{
             boolean rowComplete = true;
             for (int i=0;i<3;i++){
                 firstCharacter = board1.cells[i][0];
-                rowComplete = true;
-                for (int j=1;j<3;j++){
-                    if(!(board1.cells[i][j].equals(firstCharacter))){
-                        rowComplete = false;
-                        break;
+                rowComplete = firstCharacter!=null;
+                if(rowComplete){
+                    for (int j=1;j<3;j++){
+                        if(firstCharacter!=null && !firstCharacter.equals(board1.cells[i][j])){
+                            rowComplete = false;
+                            break;
+                        }
                     }
                 }
                 if(rowComplete)return new GameResult(true,firstCharacter);
@@ -81,35 +85,39 @@ class AI_Engine{
             boolean colComplete = true;
             for (int i=0;i<3;i++){
                 firstCharacter = board1.cells[0][i];
-                colComplete = true;
-                for (int j=1;j<3;j++){
-                    if(!(board1.cells[j][i].equals(firstCharacter))){
-                        colComplete = false;
-                        break;
+                colComplete = firstCharacter!=null;
+                if(colComplete){
+                    for (int j=1;j<3;j++){
+                        if(firstCharacter!=null && !firstCharacter.equals(board1.cells[j][i])){
+                            colComplete = false;
+                            break;
+                        }
                     }
                 }
                 if(colComplete)return new GameResult(true,firstCharacter);
             }
             if(colComplete)return new GameResult(true,firstCharacter);
             // diag check
-            boolean diagComplete = true;
-            for (int i=0;i<3;i++){
-                firstCharacter = board1.cells[0][0];
-                diagComplete = true;
-                if(!(board1.cells[i][i].equals(firstCharacter))){
-                    diagComplete = false;
-                    break;
+            firstCharacter = board1.cells[0][0];
+            boolean diagComplete = firstCharacter!=null;
+            if(diagComplete){
+                for (int i=0;i<3;i++){
+                    if(firstCharacter!=null && !firstCharacter.equals(board1.cells[i][i])){
+                        diagComplete = false;
+                        break;
+                    }
                 }
             }
             if(diagComplete)return new GameResult(true,firstCharacter);
             // revdiag check
-            boolean revDiagComplete = true;
-            for (int i=0;i<3;i++){
-                firstCharacter = board1.cells[0][2];
-                revDiagComplete = true;
-                if(!(board1.cells[i][2-i].equals(firstCharacter))){
-                    revDiagComplete = false;
-                    break;
+            firstCharacter = board1.cells[0][2];
+            boolean revDiagComplete = firstCharacter!=null;
+            if(revDiagComplete){
+                for (int i=0;i<3;i++){
+                    if(firstCharacter!=null && !firstCharacter.equals(board1.cells[i][2-i])){
+                        revDiagComplete = false;
+                        break;
+                    }
                 }
             }
             if(revDiagComplete)return new GameResult(true,firstCharacter);
@@ -148,6 +156,17 @@ class TicTacToeBoard extends Board{
     public void setCell(Cell cell, String symbol){
         cells[cell.row][cell.col] = symbol;
     }
+    @Override
+    public String toString(){
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                result.append(cells[i][j] == null ? "-" : cells[i][j]);
+            }
+            result.append("\n");
+        }
+        return result.toString();
+    } 
 }
 
 class Player{
@@ -194,6 +213,13 @@ class GameResult{
     }
     public String getWinner(){
         return winner;
+    }
+    @Override
+    public String toString() {
+        return "GameResult{" +
+                "isOver=" + isOver +
+                ", winner='" + winner + '\'' +
+                '}';
     }
 }
 
